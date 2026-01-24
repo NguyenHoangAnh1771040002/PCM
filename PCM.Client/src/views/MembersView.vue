@@ -4,11 +4,6 @@
       <v-card-title class="d-flex align-center">
         <v-icon icon="mdi-account-group" class="mr-2" />
         Quản lý Hội viên
-        <v-spacer />
-        <v-btn v-if="authStore.isAdmin" color="primary" @click="openDialog()">
-          <v-icon left>mdi-plus</v-icon>
-          Thêm hội viên
-        </v-btn>
       </v-card-title>
     </v-card>
 
@@ -68,10 +63,10 @@
       </v-card-text>
     </v-card>
 
-    <!-- Dialog Create/Edit -->
+    <!-- Dialog Edit -->
     <v-dialog v-model="dialog" max-width="500">
       <v-card>
-        <v-card-title>{{ editingMember ? 'Sửa hội viên' : 'Thêm hội viên' }}</v-card-title>
+        <v-card-title>Sửa hội viên</v-card-title>
         <v-card-text>
           <v-form ref="formRef" v-model="valid">
             <v-text-field
@@ -87,14 +82,6 @@
               label="Ngày sinh"
               type="date"
             />
-            <v-text-field
-              v-model.number="form.rankLevel"
-              label="Điểm DUPR"
-              type="number"
-              step="0.1"
-              min="0"
-              max="7"
-            />
             <v-switch v-model="form.isActive" label="Hoạt động" color="primary" />
           </v-form>
         </v-card-text>
@@ -102,7 +89,7 @@
           <v-spacer />
           <v-btn variant="text" @click="dialog = false">Hủy</v-btn>
           <v-btn color="primary" :loading="saving" :disabled="!valid" @click="saveMember">
-            {{ editingMember ? 'Cập nhật' : 'Tạo mới' }}
+            Cập nhật
           </v-btn>
         </v-card-actions>
       </v-card>

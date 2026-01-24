@@ -270,17 +270,19 @@ const createMatch = async () => {
   if (!valid.value) return
   saving.value = true
   try {
-    // Create match
-    const matchRes = await matchService.create(form.value)
-    
-    // Update result
-    await matchService.updateResult(matchRes.data.id, { winningSide: winningSide.value })
+    // Create match with winningSide included
+    const matchData = {
+      ...form.value,
+      winningSide: winningSide.value
+    }
+    await matchService.create(matchData)
     
     showSnackbar('Ghi nhận trận đấu thành công!')
     dialog.value = false
     loadData()
-  } catch (e) {
-    showSnackbar('Lỗi khi lưu trận đấu', 'error')
+  } catch (e: any) {
+    const errorMsg = e.response?.data?.message || 'Lỗi khi lưu trận đấu'
+    showSnackbar(errorMsg, 'error')
   } finally {
     saving.value = false
   }

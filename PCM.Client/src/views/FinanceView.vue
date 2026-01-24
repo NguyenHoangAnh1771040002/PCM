@@ -56,22 +56,22 @@
             >
               <template v-slot:item.type="{ item }">
                 <v-chip
-                  :color="item.category?.type === 'Income' ? 'success' : 'error'"
+                  :color="(item as any).categoryType === 'Income' ? 'success' : 'error'"
                   size="small"
                 >
-                  {{ item.category?.type === 'Income' ? 'Thu' : 'Chi' }}
+                  {{ (item as any).categoryType === 'Income' ? 'Thu' : 'Chi' }}
                 </v-chip>
               </template>
               <template v-slot:item.amount="{ item }">
-                <span :class="item.category?.type === 'Income' ? 'text-success' : 'text-error'">
-                  {{ item.category?.type === 'Income' ? '+' : '-' }}{{ formatMoney(item.amount) }}
+                <span :class="(item as any).categoryType === 'Income' ? 'text-success' : 'text-error'">
+                  {{ (item as any).categoryType === 'Income' ? '+' : '-' }}{{ formatMoney(item.amount) }}
                 </span>
               </template>
               <template v-slot:item.date="{ item }">
                 {{ formatDate(item.date) }}
               </template>
               <template v-slot:item.category="{ item }">
-                {{ item.category?.name || 'N/A' }}
+                {{ (item as any).categoryName || 'N/A' }}
               </template>
             </v-data-table>
           </v-card-text>

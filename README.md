@@ -61,19 +61,8 @@ PCM/
 - Node.js 18+ & npm
 - SQL Server (LocalDB hoặc SQL Server Express)
 
-### Cách 1: Chạy nhanh bằng file batch (Khuyên dùng)
 
-```bash
-# Double-click file start.bat hoặc chạy lệnh:
-start.bat
-```
-
-File `start.bat` sẽ tự động:
-- ✅ Khởi động Backend API
-- ✅ Khởi động Frontend
-- ✅ Mở trình duyệt tại http://localhost:5173
-
-### Cách 2: Chạy thủ công
+### Cách 1: Chạy thủ công
 
 #### Bước 1: Cài đặt dependencies (chỉ lần đầu)
 
@@ -111,6 +100,18 @@ npm run dev
 ```
 
 Frontend sẽ chạy tại: `http://localhost:5173`
+
+### Cách 2: Chạy nhanh bằng file batch (Chạy sau khi đã cài đặt ở cách 1)
+
+```bash
+# Double-click file start.bat hoặc chạy lệnh:
+start.bat
+```
+
+File `start.bat` sẽ tự động:
+- ✅ Khởi động Backend API
+- ✅ Khởi động Frontend
+- ✅ Mở trình duyệt tại http://localhost:5173
 
 ## 👥 Tài khoản mẫu
 

@@ -32,26 +32,37 @@ Dự án fullstack quản lý hoạt động của câu lạc bộ Pickleball, b
 
 ```
 PCM/
-├── PCM.API/                    # Backend API
-│   ├── Controllers/            # API endpoints
-│   ├── Models/                 # Entity models
-│   ├── DTOs/                   # Data transfer objects
-│   ├── Data/                   # DbContext & seed data
-│   └── Helpers/                # Utility classes
+├── PCM.slnx                   # Solution file
+├── README.md                  # File này
+├── start.bat                  # Batch file to start the project
+├── PCM.API/                   # Backend API
+│   ├── Controllers/           # API endpoints
+│   ├── Models/                # Entity models
+│   ├── DTOs/                  # Data transfer objects
+│   ├── Data/                  # DbContext & seed data
+│   ├── Helpers/               # Utility classes
+│   ├── Migrations/            # Database migrations
+│   ├── Properties/            # Launch settings
+│   ├── Services/              # Business logic services
+│   ├── appsettings.json       # Configuration file
+│   ├── Program.cs             # Entry point
+│   └── PCM.API.csproj         # Project file
 │
-├── PCM.Client/                 # Frontend Vue.js
-│   ├── src/
-│   │   ├── assets/             # Static assets
-│   │   ├── components/         # Vue components
-│   │   ├── layouts/            # Layout components
-│   │   ├── plugins/            # Vuetify, Router config
-│   │   ├── services/           # API service layer
-│   │   ├── stores/             # Pinia stores
-│   │   ├── types/              # TypeScript interfaces
-│   │   └── views/              # Page components
-│   └── public/
-│
-└── README.md                   # File này
+├── PCM.Client/                # Frontend Vue.js
+│   ├── index.html             # HTML entry point
+│   ├── package.json           # Node.js dependencies
+│   ├── vite.config.ts         # Vite configuration
+│   ├── tsconfig.json          # TypeScript configuration
+│   ├── src/                   # Source code
+│   │   ├── assets/            # Static assets
+│   │   ├── components/        # Vue components
+│   │   ├── layouts/           # Layout components
+│   │   ├── plugins/           # Vuetify, Router config
+│   │   ├── services/          # API service layer
+│   │   ├── stores/            # Pinia stores
+│   │   ├── types/             # TypeScript interfaces
+│   │   └── views/             # Page components
+│   └── public/                # Public assets
 ```
 
 ## 🚀 Hướng dẫn cài đặt và chạy
@@ -61,47 +72,48 @@ PCM/
 - Node.js 18+ & npm
 - SQL Server (LocalDB hoặc SQL Server Express)
 
+### Cài đặt (chỉ lần đầu)
 
-### Cách 1: Chạy thủ công
-
-#### Bước 1: Cài đặt dependencies (chỉ lần đầu)
+#### Bước 1: Cài đặt backend 
 
 ```bash
 # Cài đặt backend
 cd PCM.API
 dotnet restore
-
-# Cài đặt frontend
-cd ../PCM.Client
-npm install
-```
-
-#### Bước 2: Tạo database (chỉ lần đầu)
-
-```bash
-cd PCM.API
 dotnet ef database update
 ```
 
-#### Bước 3: Chạy Backend API
+#### Bước 2: Cài đặt frontend
 
 ```bash
+# Cài đặt frontend
+cd PCM.Client
+npm install
+```
+
+### Chạy
+
+#### Chạy backend
+
+```bash
+# Chạy backend
 cd PCM.API
 dotnet run
 ```
 
 API sẽ chạy tại: `http://localhost:5176`
 
-#### Bước 4: Chạy Frontend (terminal mới)
+#### Chạy frontend
 
 ```bash
+# Chạy frontend
 cd PCM.Client
 npm run dev
 ```
 
 Frontend sẽ chạy tại: `http://localhost:5173`
 
-### Cách 2: Chạy nhanh bằng file batch (Chạy sau khi đã cài đặt ở cách 1)
+### Chạy nhanh bằng file batch
 
 ```bash
 # Double-click file start.bat hoặc chạy lệnh:

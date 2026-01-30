@@ -61,7 +61,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVueDev", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(
+                "http://localhost:5173", 
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "http://frontend",
+                "http://pcm-web")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -74,28 +79,34 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Seed users with correct password hashes
+// Apply migrations and seed data on startup
 using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    
+    // Auto-migrate database (important for Docker)
+    context.Database.Migrate();
+    
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     
     await SeedUsersAsync(userManager, roleManager, context);
 }
 
 // Configure the HTTP request pipeline.
+// Enable Swagger in both Development and Production for documentation
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PCM API v1");
+    c.RoutePrefix = "swagger";
+});
+
+// Skip HTTPS redirect in Docker (running behind Nginx proxy)
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PCM API v1");
-        c.RoutePrefix = "swagger";
-    });
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 app.UseCors("AllowVueDev");
 
@@ -103,6 +114,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Health check endpoint for Docker
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.Run();
 

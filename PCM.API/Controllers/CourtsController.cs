@@ -31,7 +31,8 @@ namespace PCM.API.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     IsActive = c.IsActive,
-                    Description = c.Description
+                    Description = c.Description,
+                    CreatedDate = c.CreatedDate
                 })
                 .ToListAsync();
 
@@ -54,7 +55,8 @@ namespace PCM.API.Controllers
                 Id = court.Id,
                 Name = court.Name,
                 IsActive = court.IsActive,
-                Description = court.Description
+                Description = court.Description,
+                CreatedDate = court.CreatedDate
             });
         }
 
@@ -79,7 +81,8 @@ namespace PCM.API.Controllers
                 Id = court.Id,
                 Name = court.Name,
                 IsActive = court.IsActive,
-                Description = court.Description
+                Description = court.Description,
+                CreatedDate = court.CreatedDate
             });
         }
 

@@ -1,0 +1,35 @@
+# PCM - Pickleball Club Management - Docker Compose (Development Mode)
+# Chỉ chạy Database, Backend và Frontend chạy local để dễ debug
+
+services:
+  # ===========================================
+  # DATABASE - SQL Server 2022 (Only)
+  # ===========================================
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pcm-db-dev
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=PCM@2026!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data_dev:/var/opt/mssql
+    networks:
+      - pcm-network-dev
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "PCM@2026!" -C -Q "SELECT 1" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+networks:
+  pcm-network-dev:
+    driver: bridge
+
+volumes:
+  sqlserver_data_dev:
+    driver: local

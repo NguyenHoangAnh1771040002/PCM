@@ -1,0 +1,89 @@
+# PCM - Pickleball Club Management - Docker Compose
+# Bao gồm: Database (SQL Server 2022), Backend (ASP.NET Core 10), Frontend (Vue.js 3 + Nginx)
+
+services:
+  # ===========================================
+  # DATABASE - SQL Server 2022
+  # ===========================================
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pcm-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=PCM@2026!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - pcm-network
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "PCM@2026!" -C -Q "SELECT 1" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ===========================================
+  # BACKEND - ASP.NET Core 10 Web API
+  # ===========================================
+  backend:
+    build:
+      context: ./PCM.API
+      dockerfile: Dockerfile
+    container_name: pcm-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=database;Database=PCM_DB;User Id=sa;Password=PCM@2026!;TrustServerCertificate=True;Encrypt=True
+      - Jwt__Key=SuperSecretKeyForPCMApp2026Docker!@#Min32Chars
+      - Jwt__Issuer=PCMApp
+      - Jwt__Audience=PCMUsers
+      - Jwt__ExpirationHours=24
+    ports:
+      - "5176:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - pcm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  # ===========================================
+  # FRONTEND - Vue.js 3 + Nginx
+  # ===========================================
+  frontend:
+    build:
+      context: ./PCM.Client
+      dockerfile: Dockerfile
+    container_name: pcm-web
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - pcm-network
+    restart: unless-stopped
+
+# ===========================================
+# NETWORKS
+# ===========================================
+networks:
+  pcm-network:
+    driver: bridge
+
+# ===========================================
+# VOLUMES
+# ===========================================
+volumes:
+  sqlserver_data:
+    driver: local

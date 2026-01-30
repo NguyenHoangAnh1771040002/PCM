@@ -1,0 +1,27 @@
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Documentation
+*.md
+*.pdf
+*.docx
+docs/
+
+# Build artifacts
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+
+# Misc
+*.log
+*.tmp

@@ -24,7 +24,7 @@
           :items-per-page="5"
         >
           <template v-slot:item.court="{ item }">
-            {{ item.courtName || `Sân #${item.courtId}` }}
+            {{ item.court?.name || `Sân #${item.courtId}` }}
           </template>
           <template v-slot:item.time="{ item }">
             {{ formatDateTime(item.startTime) }} - {{ formatTime(item.endTime) }}
@@ -60,10 +60,10 @@
           :items-per-page="10"
         >
           <template v-slot:item.member="{ item }">
-            {{ item.memberName || 'N/A' }}
+            {{ item.member?.fullName || 'N/A' }}
           </template>
           <template v-slot:item.court="{ item }">
-            {{ item.courtName || `Sân #${item.courtId}` }}
+            {{ item.court?.name || `Sân #${item.courtId}` }}
           </template>
           <template v-slot:item.time="{ item }">
             {{ formatDateTime(item.startTime) }} - {{ formatTime(item.endTime) }}

@@ -16,9 +16,10 @@ Dự án fullstack quản lý hoạt động của câu lạc bộ Pickleball, b
 ### Backend (PCM.API)
 - **Framework:** ASP.NET Core (.NET 10)
 - **ORM:** Entity Framework Core
-- **Database:** SQL Server
+- **Database:** SQL Server 2022
 - **Authentication:** JWT Bearer Token
 - **Authorization:** Role-based (Admin, Treasurer, Referee, Member)
+- **Containerization:** Docker
 
 ### Frontend (PCM.Client)
 - **Framework:** Vue.js 3 (Composition API)
@@ -27,103 +28,163 @@ Dự án fullstack quản lý hoạt động của câu lạc bộ Pickleball, b
 - **State Management:** Pinia
 - **HTTP Client:** Axios
 - **Router:** Vue Router 4
+- **Web Server:** Nginx (production)
+- **Containerization:** Docker
+
+### DevOps & Deployment
+- **Container Orchestration:** Docker Compose
+- **Database Server:** SQL Server 2022 (Docker)
+- **Reverse Proxy:** Nginx
+- **Cloud Ready:** Render.com, VPS, DigitalOcean
 
 ## 📁 Cấu trúc dự án
 
 ```
 PCM/
-├── PCM.slnx                   # Solution file
-├── README.md                  # File này
-├── start.bat                  # Batch file to start the project
-├── PCM.API/                   # Backend API
-│   ├── Controllers/           # API endpoints
-│   ├── Models/                # Entity models
-│   ├── DTOs/                  # Data transfer objects
-│   ├── Data/                  # DbContext & seed data
-│   ├── Helpers/               # Utility classes
-│   ├── Migrations/            # Database migrations
-│   ├── Properties/            # Launch settings
-│   ├── Services/              # Business logic services
-│   ├── appsettings.json       # Configuration file
-│   ├── Program.cs             # Entry point
-│   └── PCM.API.csproj         # Project file
+├── PCM.slnx                    # Solution file
+├── README.md                   # File này
+├── .gitignore                  # Git ignore rules
+├── .dockerignore               # Docker ignore rules
 │
-├── PCM.Client/                # Frontend Vue.js
-│   ├── index.html             # HTML entry point
-│   ├── package.json           # Node.js dependencies
-│   ├── vite.config.ts         # Vite configuration
-│   ├── tsconfig.json          # TypeScript configuration
-│   ├── src/                   # Source code
-│   │   ├── assets/            # Static assets
-│   │   ├── components/        # Vue components
-│   │   ├── layouts/           # Layout components
-│   │   ├── plugins/           # Vuetify, Router config
-│   │   ├── services/          # API service layer
-│   │   ├── stores/            # Pinia stores
-│   │   ├── types/             # TypeScript interfaces
-│   │   └── views/             # Page components
-│   └── public/                # Public assets
+├── 📜 Batch Files (Windows)
+├── start.bat                   # Chạy local (Backend + Frontend)
+├── Docker-Start.bat            # 🐳 Chạy toàn bộ bằng Docker
+├── Docker-Dev.bat              # 🐳 Chỉ chạy Database (dev mode)
+├── Docker-Stop.bat             # 🐳 Dừng tất cả containers
+│
+├── 🐳 Docker Configuration
+├── docker-compose.yml          # Production: DB + Backend + Frontend
+├── docker-compose.dev.yml      # Development: Chỉ Database
+├── docker/
+│   └── init-db.sql             # SQL khởi tạo database
+│
+├── PCM.API/                    # 🔧 Backend API
+│   ├── Controllers/            # API endpoints (9 controllers)
+│   ├── Models/                 # Entity models (12 models)
+│   ├── DTOs/                   # Data transfer objects
+│   ├── Data/                   # DbContext & seed data
+│   ├── Helpers/                # Utility classes (JWT, etc.)
+│   ├── Migrations/             # Database migrations
+│   ├── Properties/             # Launch settings
+│   ├── Dockerfile              # 🐳 Docker build (local)
+│   ├── Dockerfile.render       # 🐳 Docker build (Render.com)
+│   ├── appsettings.json        # Configuration file
+│   ├── Program.cs              # Entry point
+│   └── PCM.API.csproj          # Project file
+│
+├── PCM.Client/                 # 🎨 Frontend Vue.js
+│   ├── index.html              # HTML entry point
+│   ├── package.json            # Node.js dependencies
+│   ├── vite.config.ts          # Vite configuration
+│   ├── tsconfig.json           # TypeScript configuration
+│   ├── Dockerfile              # 🐳 Docker build
+│   ├── nginx.conf              # Nginx configuration
+│   ├── .env.production         # Production environment
+│   ├── src/                    # Source code
+│   │   ├── assets/             # Static assets
+│   │   ├── components/         # Vue components
+│   │   ├── layouts/            # Layout components
+│   │   ├── plugins/            # Vuetify, Router config
+│   │   ├── services/           # API service layer
+│   │   ├── stores/             # Pinia stores
+│   │   ├── types/              # TypeScript interfaces
+│   │   └── views/              # Page components
+│   └── public/                 # Public assets
 ```
 
 ## 🚀 Hướng dẫn cài đặt và chạy
 
 ### Yêu cầu hệ thống
-- .NET SDK 10.0 trở lên
-- Node.js 18+ & npm
-- SQL Server (LocalDB hoặc SQL Server Express)
 
-### Cài đặt (chỉ lần đầu)
+| Cách chạy | Yêu cầu |
+|-----------|---------|
+| 🐳 Docker (Khuyến nghị) | Docker Desktop |
+| 💻 Local | .NET SDK 10.0+, Node.js 22+, SQL Server |
 
-#### Bước 1: Cài đặt backend 
+---
 
+### 🐳 Cách 1: Chạy bằng Docker (Khuyến nghị)
+
+**One-click deployment** - Không cần cài đặt gì thêm!
+
+#### Option A: Production Mode (Full Docker)
 ```bash
-# Cài đặt backend
+# Double-click hoặc chạy:
+Docker-Start.bat
+```
+
+Sẽ tự động:
+- ✅ Build và khởi động SQL Server 2022
+- ✅ Build và khởi động Backend API
+- ✅ Build và khởi động Frontend + Nginx
+- ✅ Mở trình duyệt tại http://localhost:8080
+
+| Service | URL |
+|---------|-----|
+| 🌐 Frontend | http://localhost:8080 |
+| 🔧 Backend API | http://localhost:5176 |
+| 📖 Swagger UI | http://localhost:5176/swagger |
+| 🗄️ Database | localhost:1433 |
+
+#### Option B: Development Mode (Docker + Local)
+```bash
+# Chỉ chạy Database bằng Docker:
+Docker-Dev.bat
+
+# Sau đó chạy Backend và Frontend local:
+start.bat
+```
+
+Phù hợp khi bạn muốn debug code mà vẫn dùng SQL Server từ Docker.
+
+#### Dừng tất cả containers
+```bash
+Docker-Stop.bat
+```
+
+---
+
+### 💻 Cách 2: Chạy Local (Không dùng Docker)
+
+#### Yêu cầu
+- .NET SDK 10.0 trở lên
+- Node.js 22+ & npm
+- SQL Server (LocalDB / Express / Full)
+
+#### Bước 1: Cài đặt Backend
+```bash
 cd PCM.API
 dotnet restore
 dotnet ef database update
 ```
 
-#### Bước 2: Cài đặt frontend
-
+#### Bước 2: Cài đặt Frontend
 ```bash
-# Cài đặt frontend
 cd PCM.Client
 npm install
 ```
 
-### Chạy
-
-#### Chạy backend
-
+#### Bước 3: Chạy Backend
 ```bash
-# Chạy backend
 cd PCM.API
 dotnet run
+# API chạy tại: http://localhost:5176
 ```
 
-API sẽ chạy tại: `http://localhost:5176`
-
-#### Chạy frontend
-
+#### Bước 4: Chạy Frontend
 ```bash
-# Chạy frontend
 cd PCM.Client
 npm run dev
+# Frontend chạy tại: http://localhost:5173
 ```
 
-Frontend sẽ chạy tại: `http://localhost:5173`
-
-### Chạy nhanh bằng file batch
-
+#### Hoặc chạy nhanh bằng batch file
 ```bash
-# Double-click file start.bat hoặc chạy lệnh:
+# Double-click file start.bat
 start.bat
 ```
 
-File `start.bat` sẽ tự động:
-- ✅ Khởi động Backend API
-- ✅ Khởi động Frontend
-- ✅ Mở trình duyệt tại http://localhost:5173
+---
 
 ## 👥 Tài khoản mẫu
 
@@ -135,6 +196,7 @@ File `start.bat` sẽ tự động:
 | member1@pcm.com | Member@123 | Member |
 | member2@pcm.com | Member@123 | Member |
 | ... đến member12@pcm.com | Member@123 | Member |
+
 
 ## 📚 Database Schema
 
@@ -216,3 +278,98 @@ File `start.bat` sẽ tự động:
 
 ### Transaction Categories
 - `GET /api/transactioncategories` - Danh mục thu chi
+
+---
+
+## 🐳 Docker Configuration
+
+### Docker Images
+
+| Service | Base Image | Port |
+|---------|------------|------|
+| Database | `mcr.microsoft.com/mssql/server:2022-latest` | 1433 |
+| Backend | `mcr.microsoft.com/dotnet/aspnet:10.0` | 8080 → 5176 |
+| Frontend | `nginx:alpine` | 80 → 8080 |
+
+### Environment Variables (Production)
+
+```yaml
+# Database
+MSSQL_SA_PASSWORD=PCM@2026!
+
+# Backend
+ConnectionStrings__DefaultConnection=Server=database;Database=PCM_DB;User Id=sa;Password=PCM@2026!;TrustServerCertificate=True
+Jwt__Key=SuperSecretKeyForPCMApp2026Docker!@#Min32Chars
+Jwt__Issuer=PCMApp
+Jwt__Audience=PCMUsers
+
+# Frontend
+VITE_API_URL=/api  # Nginx sẽ proxy đến backend
+```
+
+---
+
+## 🚀 Deploy lên Cloud
+
+### Option 1: Deploy lên VPS (Docker)
+
+1. **Cài Docker trên VPS:**
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+
+2. **Clone và chạy:**
+```bash
+git clone <your-repo>
+cd PCM
+docker-compose up -d
+```
+
+3. **Cấu hình Nginx reverse proxy (optional):**
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+    
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+### Option 2: Deploy lên Render.com
+
+**Backend:**
+1. Push code lên GitHub
+2. Tạo Web Service trên Render.com
+3. Chọn `Docker` runtime
+4. Đổi Dockerfile path thành `PCM.API/Dockerfile.render`
+5. Cấu hình Environment Variables
+
+**Frontend:**
+1. Tạo Static Site trên Render.com
+2. Build command: `cd PCM.Client && npm install && npm run build`
+3. Publish directory: `PCM.Client/dist`
+
+**Database:**
+- Sử dụng dịch vụ SQL Server managed hoặc PostgreSQL
+
+---
+
+## 📄 License
+
+MIT License - Dự án học tập Fullstack Development
+
+---
+
+## 👨‍💻 Tác giả
+
+**Nguyễn Hoàng Anh** - *1771040002*
+
+> 🏓 *"Play Hard, Have Fun!"* - Vợt Thủ Phố Núi

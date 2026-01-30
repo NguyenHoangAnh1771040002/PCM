@@ -1,0 +1,61 @@
+# Render.com Blueprint Configuration
+# Định nghĩa tất cả services cần deploy
+
+services:
+  # ===========================================
+  # BACKEND - ASP.NET Core Web API
+  # ===========================================
+  - type: web
+    name: pcm-api
+    runtime: docker
+    dockerfilePath: ./PCM.API/Dockerfile.render
+    dockerContext: ./PCM.API
+    region: singapore
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Database connection - sẽ được inject từ database service
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: pcm-database
+          property: connectionString
+      # JWT Configuration
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: PCMApp
+      - key: Jwt__Audience
+        value: PCMUsers
+      - key: Jwt__ExpirationHours
+        value: "24"
+
+  # ===========================================
+  # FRONTEND - Vue.js Static Site
+  # ===========================================
+  - type: web
+    name: pcm-web
+    runtime: static
+    buildCommand: cd PCM.Client && npm ci && npm run build
+    staticPublishPath: PCM.Client/dist
+    pullRequestPreviewsEnabled: true
+    region: singapore
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      # SPA routing - redirect all routes to index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+# ===========================================
+# DATABASE - PostgreSQL
+# ===========================================
+databases:
+  - name: pcm-database
+    databaseName: pcm_db
+    user: pcm_user
+    region: singapore
+    plan: free
+    ipAllowList: [] # Allow all connections

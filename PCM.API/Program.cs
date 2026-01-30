@@ -3,16 +3,35 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using PCM.API.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext
+// Add DbContext - Auto-detect PostgreSQL (Render) or SQL Server (local)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .ConfigureWarnings(warnings => 
-               warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
+{
+    // Check if connection string contains "postgres" to use PostgreSQL
+    if (!string.IsNullOrEmpty(connectionString) && 
+        (connectionString.Contains("postgres", StringComparison.OrdinalIgnoreCase) ||
+         connectionString.Contains("postgresql", StringComparison.OrdinalIgnoreCase)))
+    {
+        // PostgreSQL for Render.com production
+        options.UseNpgsql(connectionString)
+               .ConfigureWarnings(warnings => 
+                   warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
+    else
+    {
+        // SQL Server for local development
+        options.UseSqlServer(connectionString)
+               .ConfigureWarnings(warnings => 
+                   warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
+});
 
 // Add Identity with custom password options (dễ demo)
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -62,11 +81,18 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowVueDev", policy =>
     {
         policy.WithOrigins(
+                // Local development
                 "http://localhost:5173", 
                 "http://localhost:3000",
                 "http://localhost:8080",
                 "http://frontend",
-                "http://pcm-web")
+                "http://pcm-web",
+                // Render.com production (update with your actual URLs)
+                "https://pcm-web.onrender.com",
+                "https://pcm-api.onrender.com",
+                // Custom domain (update with your domain)
+                "https://nguyenhoanganh.me",
+                "https://www.nguyenhoanganh.me")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
